@@ -54,3 +54,69 @@ build-iPhoneSimulator/
 
 # Used by RuboCop. Remote config files pulled in from inherit_from directive.
 # .rubocop-https?--*
+
+# Ignore all environment files.
+/.env*
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Ignore storage (uploaded files in development and any SQLite databases).
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/
+!/tmp/storage/.keep
+
+/public/assets
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Dependências
+/node_modules
+/yarn-error.log
+/.bundle
+/vendor/bundle
+/vendor/cache
+
+# Arquivos Rails
+/log/*
+/tmp/*
+/storage/*
+/public/assets
+/public/packs
+/public/packs-test
+.byebug_history
+
+# Banco SQLite (se estiver usando)
+*.sqlite3
+*.sqlite3-journal
+
+# Credenciais
+/config/master.key
+/config/credentials.yml.enc
+
+# Cobertura de testes
+/coverage
+
+# Arquivos de ambiente
+.env
+.env.*.local
+
+# Arquivos do editor/IDE
+.idea
+.vscode
+*.swp
