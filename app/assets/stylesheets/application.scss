@@ -8,3 +8,8 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+@import "bootswatch/darkly/variables";
+
+@import "bootstrap";
+
+@import "bootswatch/darkly/bootswatch";
