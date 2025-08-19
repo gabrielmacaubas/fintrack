@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= content_for(:title) || "Myapp" %></title>
+
+<head>
+    <title><%= content_for(:title) || "FinTrack" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -23,9 +24,34 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
     <%= javascript_importmap_tags %>
-  </head>
+</head>
+<body class="d-flex align-items-center justify-content-center min-vh-100 bg-dark">
 
-  <body>
+  <!-- Logo fixa no canto superior esquerdo -->
+  <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+    <%= link_to root_path do %>
+      <%= image_tag "logo-dark.png", alt: "Minha Logo", class: "img-fluid", style: "max-height: 110px;" %>
+    <% end %>
+  </div>
+
+    <!-- Container de flash messages fixado -->
+    <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 1100;">
+      <% if notice %>
+        <div class="alert alert-success alert-dismissible fade show shadow" role="alert">
+          <%= notice %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+
+      <% if alert %>
+        <div class="alert alert-danger alert-dismissible fade show shadow" role="alert">
+          <%= alert %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+    </div>
+
     <%= yield %>
-  </body>
+</body>
+
 </html>

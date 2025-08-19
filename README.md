@@ -40,15 +40,19 @@ Capacitar o usuário a gerenciar suas finanças de forma eficiente, oferecendo *
 ## ▶️ Como rodar o projeto
 
 ### Pré-requisitos
-- Ruby 3.2+  
-- Rails 7+  
-- PostgreSQL  
+- Ruby 3.3+  
+- Rails 8+  
+- PostgreSQL 15  
 
 ### Passos
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/fintrack.git
+git clone https://github.com/gabrielmacaubas/fintrack.git
 cd fintrack
+
+# Construa o container docker e suba-o
+docker-compose build
+docker-compose up
 
 # Instale as dependências
 bundle install
