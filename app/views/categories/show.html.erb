@@ -1,0 +1,193 @@
+<% content_for :title, "Categoria - #{@category.name}" %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="text-light mb-1">
+        <i class="bi bi-eye me-2 text-primary"></i>
+        Detalhes da Categoria
+      </h1>
+      <p class="text-muted mb-0">Informações e transações desta categoria</p>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to edit_category_path(@category), class: "btn btn-warning" do %>
+        <i class="bi bi-pencil me-1"></i> Editar
+      <% end %>
+      <%= link_to categories_path, class: "btn btn-outline-light" do %>
+        <i class="bi bi-arrow-left me-1"></i> Voltar
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Category Details -->
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card bg-secondary border-0 mb-4">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-opacity-25 rounded-circle p-3 me-3">
+                <i class="bi bi-tag text-primary fs-4"></i>
+              </div>
+              <div>
+                <h3 class="text-light mb-1">
+                  <% if @category.color.present? %>
+                    <div class="d-inline-block rounded-circle me-2" 
+                         style="width: 20px; height: 20px; background-color: <%= @category.color %>; vertical-align: middle;"></div>
+                  <% end %>
+                  <%= @category.name %>
+                </h3>
+                <p class="text-muted mb-0">Categoria</p>
+              </div>
+            </div>
+          </div>
+
+          <% if @category.description.present? %>
+            <div class="bg-dark rounded p-3 mb-4">
+              <label class="form-label text-muted small mb-1">Descrição</label>
+              <p class="text-light mb-0"><%= @category.description %></p>
+            </div>
+          <% end %>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="bg-dark rounded p-3 text-center">
+                <h4 class="text-success fw-bold mb-1"><%= @category.incomes.count %></h4>
+                <small class="text-muted">Receitas</small>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="bg-dark rounded p-3 text-center">
+                <h4 class="text-danger fw-bold mb-1"><%= @category.expenses.count %></h4>
+                <small class="text-muted">Despesas</small>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="bg-dark rounded p-3 text-center">
+                <h5 class="text-success fw-bold mb-1">
+                  <%= number_to_currency(@category.incomes.sum(:amount)) %>
+                </h5>
+                <small class="text-muted">Total de Receitas</small>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="bg-dark rounded p-3 text-center">
+                <h5 class="text-danger fw-bold mb-1">
+                  <%= number_to_currency(@category.expenses.sum(:amount)) %>
+                </h5>
+                <small class="text-muted">Total de Despesas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="card bg-secondary border-0">
+        <div class="card-header bg-transparent border-0">
+          <h6 class="text-light mb-0">
+            <i class="bi bi-clock-history me-2"></i>Transações Recentes
+          </h6>
+        </div>
+        <div class="card-body">
+          <% recent_transactions = (@category.incomes.limit(10) + @category.expenses.limit(10)).sort_by(&:created_at).reverse %>
+          <% if recent_transactions.any? %>
+            <div class="list-group list-group-flush">
+              <% recent_transactions.each do |transaction| %>
+                <div class="list-group-item bg-dark border-secondary">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                      <% if transaction.is_a?(Income) %>
+                        <i class="bi bi-arrow-up-circle text-success me-2"></i>
+                      <% else %>
+                        <i class="bi bi-arrow-down-circle text-danger me-2"></i>
+                      <% end %>
+                      <div>
+                        <h6 class="text-light mb-0"><%= transaction.description %></h6>
+                        <small class="text-muted">
+                          <%= transaction.date.strftime("%d/%m/%Y") %>
+                        </small>
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <span class="<%= transaction.is_a?(Income) ? 'text-success' : 'text-danger' %> fw-bold">
+                        <%= number_to_currency(transaction.amount) %>
+                      </span>
+                      <br>
+                      <% if transaction.is_a?(Income) %>
+                        <%= link_to "Ver", income_path(transaction), class: "btn btn-sm btn-outline-success" %>
+                      <% else %>
+                        <%= link_to "Ver", expense_path(transaction), class: "btn btn-sm btn-outline-danger" %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="bi bi-journal-text text-muted display-6"></i>
+              <p class="text-muted mt-2">Nenhuma transação encontrada nesta categoria</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card bg-secondary border-0">
+        <div class="card-header bg-transparent border-0">
+          <h6 class="text-light mb-0">
+            <i class="bi bi-gear me-2"></i>Ações
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <%= link_to edit_category_path(@category), class: "btn btn-warning" do %>
+              <i class="bi bi-pencil me-2"></i>Editar Categoria
+            <% end %>
+            
+            <% if @category.incomes.empty? && @category.expenses.empty? %>
+              <%= link_to @category, data: { turbo_method: :delete }, 
+                          class: "btn btn-outline-danger",
+                          confirm: "Tem certeza que deseja excluir esta categoria?",
+                          data: { 
+                            confirm_title: "Confirmar exclusão",
+                            confirm_text: "Esta ação não pode ser desfeita."
+                          } do %>
+                <i class="bi bi-trash me-2"></i>Excluir Categoria
+              <% end %>
+            <% else %>
+              <button class="btn btn-outline-secondary" disabled title="Não é possível excluir categoria com transações">
+                <i class="bi bi-trash me-2"></i>Excluir Categoria
+              </button>
+              <small class="text-muted">Para excluir, remova todas as transações primeiro</small>
+            <% end %>
+            
+            <hr class="border-secondary">
+            
+            <%= link_to categories_path, class: "btn btn-outline-light" do %>
+              <i class="bi bi-list me-2"></i>Todas as Categorias
+            <% end %>
+            
+            <%= link_to new_category_path, class: "btn btn-outline-primary" do %>
+              <i class="bi bi-plus-circle me-2"></i>Nova Categoria
+            <% end %>
+
+            <hr class="border-secondary">
+
+            <h6 class="text-light mb-2">Adicionar transação</h6>
+            <%= link_to new_income_path(category_id: @category.id), class: "btn btn-outline-success btn-sm" do %>
+              <i class="bi bi-plus me-1"></i>Receita
+            <% end %>
+            <%= link_to new_expense_path(category_id: @category.id), class: "btn btn-outline-danger btn-sm" do %>
+              <i class="bi bi-plus me-1"></i>Despesa
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

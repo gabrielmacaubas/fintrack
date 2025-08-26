@@ -1,0 +1,216 @@
+<% content_for :title, "Receita - #{@income.description}" %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="text-light mb-1">
+        <i class="bi bi-eye me-2 text-success"></i>
+        Detalhes da Receita
+      </h1>
+      <p class="text-muted mb-0">Informações completas desta receita</p>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to edit_income_path(@income), class: "btn btn-warning" do %>
+        <i class="bi bi-pencil me-1"></i> Editar
+      <% end %>
+      <%= link_to incomes_path, class: "btn btn-outline-light" do %>
+        <i class="bi bi-arrow-left me-1"></i> Voltar
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Income Details -->
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card bg-secondary border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+              <div class="bg-success bg-opacity-25 rounded-circle p-3 me-3">
+                <i class="bi bi-arrow-up-circle text-success fs-4"></i>
+              </div>
+              <div>
+                <h3 class="text-light mb-1"><%= @income.description %></h3>
+                <p class="text-muted mb-0">Receita registrada</p>
+              </div>
+            </div>
+            <span class="badge bg-success fs-6 px-3 py-2">
+              <i class="bi bi-tag me-1"></i><%= @income.category.name %>
+            </span>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-md-6">
+              <div class="bg-dark rounded p-3">
+                <label class="form-label text-muted small mb-1">Valor</label>
+                <h4 class="text-success fw-bold mb-0">
+                  <%= number_to_currency(@income.amount) %>
+                </h4>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="bg-dark rounded p-3">
+                <label class="form-label text-muted small mb-1">Data</label>
+                <h6 class="text-light mb-0">
+                  <i class="bi bi-calendar3 me-2"></i>
+                  <%= @income.date.strftime("%d/%m/%Y") %>
+                </h6>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="bg-dark rounded p-3">
+                <label class="form-label text-muted small mb-1">Categoria</label>
+                <div class="d-flex align-items-center">
+                  <% if @income.category.color.present? %>
+                    <div class="rounded-circle me-2" 
+                         style="width: 16px; height: 16px; background-color: <%= @income.category.color %>;"></div>
+                  <% end %>
+                  <h6 class="text-light mb-0"><%= @income.category.name %></h6>
+                </div>
+                <% if @income.category.description.present? %>
+                  <small class="text-muted"><%= @income.category.description %></small>
+                <% end %>
+              </div>
+            </div>
+
+            <% if @income.has_receipt? %>
+              <div class="col-12">
+                <div class="bg-dark rounded p-3">
+                  <label class="form-label text-muted small mb-2">Comprovante</label>
+                  <div class="receipt-container">
+                    <% if @income.receipt.content_type.start_with?('image/') %>
+                      <!-- Visualização de imagem -->
+                      <div class="text-center mb-3">
+                        <%= image_tag @income.receipt, 
+                            class: "img-fluid rounded shadow", 
+                            style: "max-height: 300px; cursor: pointer;",
+                            data: { bs_toggle: "modal", bs_target: "#receiptModal" } %>
+                      </div>
+                      
+                      <!-- Modal para visualização em tela cheia -->
+                      <div class="modal fade" id="receiptModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                          <div class="modal-content bg-dark">
+                            <div class="modal-header border-secondary">
+                              <h5 class="modal-title text-light">
+                                <i class="bi bi-file-image me-2"></i>
+                                Comprovante - <%= @income.description %>
+                              </h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center p-0">
+                              <%= image_tag @income.receipt, class: "img-fluid" %>
+                            </div>
+                            <div class="modal-footer border-secondary">
+                              <%= link_to @income.receipt, 
+                                  class: "btn btn-primary", 
+                                  download: "comprovante_#{@income.id}_#{@income.description.parameterize}.#{@income.receipt.filename.extension}" do %>
+                                <i class="bi bi-download me-2"></i>Baixar Comprovante
+                              <% end %>
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <% else %>
+                      <!-- Visualização de arquivo não-imagem -->
+                      <div class="d-flex align-items-center justify-content-between p-3 bg-secondary rounded">
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-file-earmark-text text-primary fs-4 me-3"></i>
+                          <div>
+                            <h6 class="text-light mb-0"><%= @income.receipt.filename %></h6>
+                            <small class="text-muted">
+                              <%= number_to_human_size(@income.receipt.byte_size) %> • 
+                              <%= @income.receipt.content_type %>
+                            </small>
+                          </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                          <%= link_to @income.receipt, 
+                              class: "btn btn-sm btn-primary", 
+                              target: "_blank" do %>
+                            <i class="bi bi-eye me-1"></i>Visualizar
+                          <% end %>
+                          <%= link_to @income.receipt, 
+                              class: "btn btn-sm btn-outline-primary", 
+                              download: "comprovante_#{@income.id}_#{@income.description.parameterize}.#{@income.receipt.filename.extension}" do %>
+                            <i class="bi bi-download me-1"></i>Baixar
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% elsif @income.receipt_file.present? %>
+              <div class="col-12">
+                <div class="bg-dark rounded p-3">
+                  <label class="form-label text-muted small mb-1">Comprovante (Legacy)</label>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-file-earmark text-primary me-2"></i>
+                    <span class="text-light">Arquivo anexado (sistema anterior)</span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="col-12">
+              <div class="bg-dark rounded p-3">
+                <label class="form-label text-muted small mb-1">Registrado em</label>
+                <small class="text-muted">
+                  <i class="bi bi-clock me-1"></i>
+                  <%= @income.created_at.strftime("%d/%m/%Y às %H:%M") %>
+                </small>
+                <% if @income.updated_at != @income.created_at %>
+                  <br>
+                  <small class="text-muted">
+                    <i class="bi bi-pencil me-1"></i>
+                    Última edição: <%= @income.updated_at.strftime("%d/%m/%Y às %H:%M") %>
+                  </small>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card bg-secondary border-0">
+        <div class="card-header bg-transparent border-0">
+          <h6 class="text-light mb-0">
+            <i class="bi bi-gear me-2"></i>Ações
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <%= link_to edit_income_path(@income), class: "btn btn-warning" do %>
+              <i class="bi bi-pencil me-2"></i>Editar Receita
+            <% end %>
+            
+            <%= link_to @income, data: { turbo_method: :delete }, 
+                        class: "btn btn-outline-danger",
+                        confirm: "Tem certeza que deseja excluir esta receita?",
+                        data: { 
+                          confirm_title: "Confirmar exclusão",
+                          confirm_text: "Esta ação não pode ser desfeita."
+                        } do %>
+              <i class="bi bi-trash me-2"></i>Excluir Receita
+            <% end %>
+            
+            <hr class="border-secondary">
+            
+            <%= link_to incomes_path, class: "btn btn-outline-light" do %>
+              <i class="bi bi-list me-2"></i>Todas as Receitas
+            <% end %>
+            
+            <%= link_to new_income_path, class: "btn btn-outline-success" do %>
+              <i class="bi bi-plus-circle me-2"></i>Nova Receita
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

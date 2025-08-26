@@ -1,6 +1,24 @@
 Rails.application.routes.draw do
-  devise_for :users
-  root "home#index"
+  get "dashboard/index"
+  resources :categories
+  resources :expenses
+  resources :incomes
+  
+  devise_for :users, controllers: {
+    registrations: 'users/registrations'
+  }
+  
+  # Custom route for resetting finances
+  delete "users/reset_finances", to: "users/registrations#reset_finances", as: :reset_finances
+  
+  root "dashboard#index"
+
+  # Settings routes
+  get "settings", to: "settings#index"
+  patch "settings", to: "settings#update"
+  delete "settings/reset_finances", to: "settings#reset_finances"
+  delete "settings/destroy_account", to: "settings#destroy_account"
+  
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

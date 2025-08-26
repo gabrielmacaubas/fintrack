@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title><%= content_for(:title) || "FinTrack" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,14 +10,10 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/darkly/bootstrap.min.css", 
                         "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
@@ -29,7 +24,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -76,6 +70,16 @@
         .sidebar-nav .nav-link.active {
             background-color: #375a7f;
             color: #fff;
+        }
+        
+        .logout-button {
+            transition: all 0.2s ease;
+        }
+        
+        .logout-button:hover {
+            background-color: #375a7f !important;
+            color: #fff !important;
+            padding-left: 2rem !important;
         }
 
         .main-content {
@@ -202,9 +206,8 @@
             color: #dc3545;
         }
     </style>
-</head>
-
-<body class="bg-dark">
+  </head>
+  <body class="bg-dark">
     <% if devise_controller? %>
     <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
         <%= link_to root_path do %>
@@ -212,7 +215,8 @@
         <% end %>
     </div>
     <% end %>
-    <% if not devise_controller? %>
+    
+    <% unless devise_controller? %>
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <%= link_to root_path, class: "text-decoration-none" do %>
@@ -223,33 +227,45 @@
         <nav class="sidebar-nav">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <%= link_to root_path, class: "nav-link #{'active' if current_page?(root_path)}" do %>
+                    <%= link_to dashboard_index_path, class: "nav-link #{'active' if controller_name == 'dashboard'}" do %>
                     <i class="bi bi-house-door me-2"></i>
-                    Início
+                    Dashboard
                     <% end %>
                 </li>
                 <li class="nav-item">
-                    <%= link_to "#", class: "nav-link" do %>
+                    <%= link_to incomes_path, class: "nav-link #{'active' if controller_name == 'incomes'}" do %>
                     <i class="bi bi-graph-up me-2" style="color: green;"></i>
                     Receitas
                     <% end %>
                 </li>
-                <li class="nav-item text-green">
-                    <%= link_to "#", class: "nav-link" do %>
+                <li class="nav-item">
+                    <%= link_to expenses_path, class: "nav-link #{'active' if controller_name == 'expenses'}" do %>
                     <i class="bi bi-graph-down me-2" style="color: red;"></i>
                     Despesas
                     <% end %>
                 </li>
                 <li class="nav-item">
-                    <%= link_to "#", class: "nav-link" do %>
+                    <%= link_to categories_path, class: "nav-link #{'active' if controller_name == 'categories'}" do %>
                     <i class="bi bi-pie-chart me-2"></i>
-                    Análise
+                    Categorias
                     <% end %>
                 </li>
                 <li class="nav-item">
-                    <%= link_to "#", class: "nav-link" do %>
+                    <%= link_to settings_path, class: "nav-link #{'active' if controller_name == 'settings'}" do %>
                     <i class="bi bi-gear me-2"></i>
                     Configurações
+                    <% end %>
+                </li>
+                <li class="nav-item mt-3 border-top pt-3">
+                    <%= link_to destroy_user_session_path, 
+                        method: :delete,
+                        data: { 
+                          confirm: "Tem certeza que deseja sair?",
+                          turbo_method: :delete
+                        }, 
+                        class: "nav-link text-danger logout-button" do %>
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Sair
                     <% end %>
                 </li>
             </ul>
@@ -282,25 +298,35 @@
                 <button class="btn btn-link dropdown-toggle d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
                     <div class="user-avatar me-2">
                         <% if current_user %>
-                        <%= current_user.email&.first&.upcase %>
+                        <%= current_user.first_name&.first&.upcase || current_user.email&.first&.upcase %>
                         <% else %>
                         U
                         <% end %>
                     </div>
                     <span class="text-light">
-                        <%= current_user&.email || current_user&.email || "User" %>
+                        <%= current_user&.full_name || current_user&.email || "User" %>
                     </span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><%= link_to "Profile", "#", class: "dropdown-item" %></li>
-                    <li><%= link_to "Settings", "#", class: "dropdown-item" %></li>
+                    <li><%= link_to "Perfil", "#", class: "dropdown-item" %></li>
+                    <li><%= link_to "Configurações", settings_path, class: "dropdown-item" %></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
                     <% if current_user %>
-                    <li><%= link_to "Sign out", destroy_user_session_path, method: :delete, class: "dropdown-item" %></li>
+                    <li>
+                        <%= link_to destroy_user_session_path, 
+                            method: :delete,
+                            data: { 
+                              confirm: "Tem certeza que deseja sair?",
+                              turbo_method: :delete
+                            },
+                            class: "dropdown-item text-danger" do %>
+                        <i class="bi bi-box-arrow-right me-2"></i>Sair
+                        <% end %>
+                    </li>
                     <% else %>
-                    <li><%= link_to "Sign in", new_user_session_path, class: "dropdown-item" %></li>
+                    <li><%= link_to "Entrar", new_user_session_path, class: "dropdown-item" %></li>
                     <% end %>
                 </ul>
             </div>
@@ -308,9 +334,13 @@
         <% end %>
 
         <!-- Page Content -->
+        <% if devise_controller? %>
         <div class="container-fluid p-4 d-flex align-items-center justify-content-center min-vh-100 bg-dark">
+        <% else %>
+        <div class="container-fluid p-4 bg-dark">
+        <% end %>
             <!-- Flash Messages -->
-    <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 1100;">
+            <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 1100;">
             <% if notice %>
                 <div class="alert alert-success alert-dismissible fade show shadow" role="alert">
                 <%= notice %>
@@ -383,14 +413,14 @@
 
             // Function to determine trend
             function getTrend(currentRate, previousRate) {
-                if (!previousRate) return '';
+                if (!previousRate) return { class: '', symbol: '' };
                 
                 if (currentRate > previousRate) {
                     return { class: 'up', symbol: '▲' };
                 } else if (currentRate < previousRate) {
                     return { class: 'down', symbol: '▼' };
                 }
-                return ''
+                return { class: '', symbol: '' };
             }
 
             // Function to update currency display
@@ -405,19 +435,21 @@
                     const trend = getTrend(rate, previousRate);
                     
                     // Update display with animation
-                    currencyValue.style.opacity = '0';
-                    currencySymbol.style.opacity = '0';
+                    if (currencyValue) currencyValue.style.opacity = '0';
+                    if (currencySymbol) currencySymbol.style.opacity = '0';
                     
                     setTimeout(() => {
-                        currencySymbol.textContent = `1 BRL = ${currentCurrency.symbol}`;
-                        currencyValue.textContent = formattedRate;
+                        if (currencySymbol) currencySymbol.textContent = `1 BRL = ${currentCurrency.symbol}`;
+                        if (currencyValue) currencyValue.textContent = formattedRate;
                         
                         // Update trend indicator
-                        currencyTrend.textContent = trend.symbol;
-                        currencyTrend.className = `currency-trend ${trend.class}`;
+                        if (currencyTrend) {
+                            currencyTrend.textContent = trend.symbol;
+                            currencyTrend.className = `currency-trend ${trend.class}`;
+                        }
                         
-                        currencyValue.style.opacity = '1';
-                        currencySymbol.style.opacity = '1';
+                        if (currencyValue) currencyValue.style.opacity = '1';
+                        if (currencySymbol) currencySymbol.style.opacity = '1';
                     }, 150);
                     
                     // Store current rate for next comparison
@@ -458,7 +490,7 @@
 
             // Close sidebar when clicking outside on mobile
             document.addEventListener('click', function(e) {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 768 && sidebar && sidebarToggle) {
                     if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
                         sidebar.classList.remove('show');
                         sidebarOverlay.classList.remove('show');
@@ -468,18 +500,20 @@
 
             // Handle window resize
             window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
+                if (window.innerWidth > 768 && sidebar && sidebarOverlay) {
                     sidebar.classList.remove('show');
                     sidebarOverlay.classList.remove('show');
                 }
             });
 
             // Click on currency ticker to manually rotate
-            document.getElementById('currencyTicker').addEventListener('click', function() {
-                rotateCurrency();
-            });
+            const currencyTicker = document.getElementById('currencyTicker');
+            if (currencyTicker) {
+                currencyTicker.addEventListener('click', function() {
+                    rotateCurrency();
+                });
+            }
         });
     </script>
-</body>
-
+  </body>
 </html>

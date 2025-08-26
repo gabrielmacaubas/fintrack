@@ -1,0 +1,173 @@
+<% content_for :title, "Receitas - FinTrack" %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="text-light mb-1">
+      <i class="bi bi-graph-up me-2 text-success"></i>
+      Receitas
+    </h1>
+    <p class="text-muted mb-0">Gerencie suas fontes de renda</p>
+  </div>
+  <%= link_to new_income_path, class: "btn btn-success" do %>
+    <i class="bi bi-plus-circle me-1"></i> Nova Receita
+  <% end %>
+</div>
+
+<!-- Search and Filters -->
+<div class="card bg-secondary border-0 mb-4">
+  <div class="card-header bg-transparent border-0">
+    <h6 class="text-light mb-0">
+      <i class="bi bi-funnel me-2"></i>Filtros e Busca
+    </h6>
+  </div>
+  <div class="card-body">
+    <%= form_with url: incomes_path, method: :get, local: true, class: "row g-3" do |form| %>
+      <div class="col-md-4">
+        <%= form.label :query, "Buscar por descrição", class: "form-label text-light" %>
+        <%= form.text_field :query, value: params[:query], 
+                            class: "form-control bg-dark border-secondary text-light",
+                            placeholder: "Digite a descrição..." %>
+      </div>
+      
+      <div class="col-md-4">
+        <%= form.label :category_id, "Categoria", class: "form-label text-light" %>
+        <%= form.select :category_id, 
+                        options_from_collection_for_select(@categories || [], :id, :name, params[:category_id]),
+                        { prompt: "Todas as categorias" },
+                        { class: "form-select bg-dark border-secondary text-light" } %>
+      </div>
+      
+      <div class="col-md-4">
+        <%= form.label :sort_by, "Ordenar por", class: "form-label text-light" %>
+        <%= form.select :sort_by, [
+              ['Data (mais recente)', 'date_desc'],
+              ['Data (mais antiga)', 'date_asc'],
+              ['Valor (maior)', 'amount_desc'],
+              ['Valor (menor)', 'amount_asc'],
+              ['Descrição', 'description']
+            ], 
+            { selected: params[:sort_by] || 'date_desc' },
+            { class: "form-select bg-dark border-secondary text-light" } %>
+      </div>
+      
+      <div class="col-md-3">
+        <%= form.label :min_amount, "Valor mínimo", class: "form-label text-light" %>
+        <%= form.number_field :min_amount, value: params[:min_amount], 
+                              class: "form-control bg-dark border-secondary text-light",
+                              placeholder: "R$ 0,00", step: 0.01 %>
+      </div>
+      
+      <div class="col-md-3">
+        <%= form.label :max_amount, "Valor máximo", class: "form-label text-light" %>
+        <%= form.number_field :max_amount, value: params[:max_amount], 
+                              class: "form-control bg-dark border-secondary text-light",
+                              placeholder: "R$ 0,00", step: 0.01 %>
+      </div>
+      
+      <div class="col-md-3">
+        <%= form.label :date_from, "Data inicial", class: "form-label text-light" %>
+        <%= form.date_field :date_from, value: params[:date_from], 
+                            class: "form-control bg-dark border-secondary text-light" %>
+      </div>
+      
+      <div class="col-md-3">
+        <%= form.label :date_to, "Data final", class: "form-label text-light" %>
+        <%= form.date_field :date_to, value: params[:date_to], 
+                            class: "form-control bg-dark border-secondary text-light" %>
+      </div>
+      
+      <div class="col-12">
+        <div class="d-flex gap-2">
+          <%= form.submit "Filtrar", class: "btn btn-primary" %>
+          <%= link_to "Limpar", incomes_path, class: "btn btn-outline-secondary" %>
+          <div class="ms-auto text-light">
+            <strong>Total filtrado: <%= number_to_currency(@total_filtered || 0) %></strong>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Incomes List -->
+<div class="row">
+    <div class="col-12">
+      <div class="card bg-secondary border-0">
+        <div class="card-body">
+          <% if @incomes.any? %>
+            <div id="incomes" class="row g-3">
+              <% @incomes.each do |income| %>
+                <div class="col-md-6 col-lg-4">
+                  <div class="card bg-dark border-success h-100">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="bg-success bg-opacity-25 rounded-circle p-2">
+                          <i class="bi bi-arrow-up-circle text-success fs-5"></i>
+                        </div>
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><%= link_to "Ver detalhes", income, class: "dropdown-item" %></li>
+                            <li><%= link_to "Editar", edit_income_path(income), class: "dropdown-item" %></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                              <%= link_to "Excluir", income, data: { turbo_method: :delete }, 
+                                          class: "dropdown-item text-danger",
+                                          confirm: "Tem certeza que deseja excluir esta receita?" %>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <h6 class="card-title text-light mb-2"><%= income.description %></h6>
+                      <h4 class="text-success fw-bold mb-3"><%= number_to_currency(income.amount) %></h4>
+                      
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                          <i class="bi bi-calendar3 me-1"></i>
+                          <%= income.date.strftime("%d/%m/%Y") %>
+                        </small>
+                        <div class="d-flex align-items-center gap-2">
+                          <% if income.has_receipt? %>
+                            <small class="text-success" title="Possui comprovante">
+                              <i class="bi bi-paperclip"></i>
+                            </small>
+                          <% end %>
+                          <span class="badge bg-success"><%= income.category.name %></span>
+                        </div>
+                      </div>
+                      
+                      <div class="d-grid">
+                        <%= link_to income, class: "btn btn-sm btn-outline-success" do %>
+                          <i class="bi bi-eye me-1"></i> Ver detalhes
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-4 d-flex justify-content-center">
+              <%= paginate @incomes %>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <i class="bi bi-graph-up text-muted display-4"></i>
+              <h4 class="text-muted mt-3">Nenhuma receita encontrada</h4>
+              <p class="text-muted">Comece adicionando sua primeira fonte de renda</p>
+              <%= link_to new_income_path, class: "btn btn-success" do %>
+                <i class="bi bi-plus-circle me-1"></i> Adicionar primeira receita
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+

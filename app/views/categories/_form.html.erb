@@ -1,0 +1,71 @@
+<div class="card bg-secondary border-0">
+  <div class="card-body">
+    <%= form_with(model: category, local: true, class: "needs-validation", novalidate: true) do |form| %>
+      <% if category.errors.any? %>
+        <div class="alert alert-danger" role="alert">
+          <h6><i class="bi bi-exclamation-triangle me-2"></i>Corrija os seguintes erros:</h6>
+          <ul class="mb-0">
+            <% category.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="row g-3">
+        <div class="col-12">
+          <%= form.label :name, "Nome da Categoria", class: "form-label text-light" %>
+          <%= form.text_field :name, class: "form-control bg-dark border-secondary text-light", 
+                              placeholder: "Ex: Alimentação, Transporte, Salário...", required: true %>
+          <div class="invalid-feedback">
+            Por favor, informe o nome da categoria.
+          </div>
+        </div>
+
+        <div class="col-12">
+          <%= form.label :description, "Descrição (opcional)", class: "form-label text-light" %>
+          <%= form.text_area :description, class: "form-control bg-dark border-secondary text-light", 
+                             placeholder: "Descrição adicional sobre esta categoria...", rows: 3 %>
+          <div class="form-text text-muted">
+            Uma descrição pode ajudar a organizar melhor suas transações
+          </div>
+        </div>
+
+        <div class="col-12">
+          <%= form.label :color, "Cor da Categoria", class: "form-label text-light" %>
+          <div class="d-flex gap-2 align-items-center">
+            <%= form.color_field :color, class: "form-control form-control-color bg-dark border-secondary", 
+                                 value: category.color || "#375a7f", style: "width: 60px; height: 40px;" %>
+            <small class="text-muted">Escolha uma cor para identificar facilmente esta categoria</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end mt-4">
+        <%= link_to categories_path, class: "btn btn-secondary" do %>
+          <i class="bi bi-arrow-left me-1"></i> Cancelar
+        <% end %>
+        <%= form.submit category.persisted? ? "Atualizar Categoria" : "Salvar Categoria", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Bootstrap form validation
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+</script>

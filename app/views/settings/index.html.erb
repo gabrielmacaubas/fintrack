@@ -1,0 +1,375 @@
+<% content_for :title, "Configurações - FinTrack" %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="text-light mb-1">
+        <i class="bi bi-gear me-2 text-primary"></i>
+        Configurações
+      </h1>
+      <p class="text-muted mb-0">Gerencie suas informações pessoais e dados da aplicação</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- User Profile Settings -->
+    <div class="col-lg-8">
+      <div class="card bg-secondary border-0 mb-4">
+        <div class="card-header bg-transparent border-0">
+          <h5 class="text-light mb-0">
+            <i class="bi bi-person-circle me-2"></i>
+            Informações Pessoais
+          </h5>
+        </div>
+        <div class="card-body">
+          <%= form_with(model: @user, url: settings_path, method: :patch, local: true, class: "needs-validation", novalidate: true) do |form| %>
+            <% if @user.errors.any? %>
+              <div class="alert alert-danger" role="alert">
+                <h6><i class="bi bi-exclamation-triangle me-2"></i>Corrija os seguintes erros:</h6>
+                <ul class="mb-0">
+                  <% @user.errors.each do |error| %>
+                    <li><%= error.full_message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= form.label :first_name, "Nome", class: "form-label text-light" %>
+                <%= form.text_field :first_name, class: "form-control bg-dark border-secondary text-light", 
+                                    placeholder: "Seu nome", required: true %>
+                <div class="invalid-feedback">
+                  Por favor, informe seu nome.
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <%= form.label :last_name, "Sobrenome", class: "form-label text-light" %>
+                <%= form.text_field :last_name, class: "form-control bg-dark border-secondary text-light", 
+                                    placeholder: "Seu sobrenome", required: true %>
+                <div class="invalid-feedback">
+                  Por favor, informe seu sobrenome.
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <%= form.label :username, "Nome de usuário", class: "form-label text-light" %>
+                <%= form.text_field :username, class: "form-control bg-dark border-secondary text-light", 
+                                    placeholder: "Nome de usuário único" %>
+              </div>
+
+              <div class="col-md-6">
+                <%= form.label :email, "Email", class: "form-label text-light" %>
+                <%= form.email_field :email, class: "form-control bg-dark border-secondary text-light", 
+                                     placeholder: "seu@email.com", required: true %>
+                <div class="invalid-feedback">
+                  Por favor, informe um email válido.
+                </div>
+              </div>
+
+              <!-- Password Fields -->
+              <div class="col-12">
+                <hr class="border-secondary my-3">
+                <h6 class="text-light mb-3">
+                  <i class="bi bi-shield-lock me-2"></i>
+                  Alterar Senha (Opcional)
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <%= form.label :password, "Nova Senha", class: "form-label text-light" %>
+                <%= form.password_field :password, class: "form-control bg-dark border-secondary text-light", 
+                                        placeholder: "Deixe em branco para manter a atual", autocomplete: "new-password" %>
+                <div class="form-text text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Mínimo de 6 caracteres
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <%= form.label :password_confirmation, "Confirmar Nova Senha", class: "form-label text-light" %>
+                <%= form.password_field :password_confirmation, class: "form-control bg-dark border-secondary text-light", 
+                                        placeholder: "Confirme a nova senha", autocomplete: "new-password" %>
+              </div>
+
+              <div class="col-12">
+                <%= form.label :current_password, "Senha Atual", class: "form-label text-light" %>
+                <%= form.password_field :current_password, class: "form-control bg-dark border-secondary text-light", 
+                                        placeholder: "Digite sua senha atual para confirmar as alterações", autocomplete: "current-password" %>
+                <div class="form-text text-muted">
+                  <i class="bi bi-shield-check me-1"></i>
+                  Necessário apenas se você estiver alterando a senha
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-4">
+              <%= form.submit "Salvar Alterações", class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Account Statistics -->
+      <div class="card bg-secondary border-0">
+        <div class="card-header bg-transparent border-0">
+          <h5 class="text-light mb-0">
+            <i class="bi bi-graph-up me-2"></i>
+            Estatísticas da Conta
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="bg-dark rounded p-3 text-center">
+                <h4 class="text-success fw-bold mb-1"><%= current_user.incomes.count %></h4>
+                <small class="text-muted">Receitas</small>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <div class="bg-dark rounded p-3 text-center">
+                <h4 class="text-danger fw-bold mb-1"><%= current_user.expenses.count %></h4>
+                <small class="text-muted">Despesas</small>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="bg-dark rounded p-3 text-center">
+                <h4 class="text-primary fw-bold mb-1"><%= current_user.categories.count %></h4>
+                <small class="text-muted">Categorias</small>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="bg-dark rounded p-3 text-center">
+                <h4 class="text-info fw-bold mb-1">
+                  <%= time_ago_in_words(current_user.created_at) %>
+                </h4>
+                <small class="text-muted">Membro há</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-6">
+              <div class="bg-dark rounded p-3">
+                <label class="form-label text-muted small mb-1">Total de Receitas</label>
+                <h5 class="text-success fw-bold mb-0">
+                  <%= number_to_currency(current_user.incomes.sum(:amount)) %>
+                </h5>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="bg-dark rounded p-3">
+                <label class="form-label text-muted small mb-1">Total de Despesas</label>
+                <h5 class="text-danger fw-bold mb-0">
+                  <%= number_to_currency(current_user.expenses.sum(:amount)) %>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Danger Zone -->
+    <div class="col-lg-4">
+      <!-- Danger Zone -->
+      <div class="card border-danger bg-secondary">
+        <div class="card-header bg-transparent border-danger">
+          <h6 class="text-danger mb-0">
+            <i class="bi bi-exclamation-triangle me-2"></i>Zona de Perigo
+          </h6>
+        </div>
+        <div class="card-body">
+          <h6 class="text-light mb-3">Resetar Dados Financeiros</h6>
+          <p class="text-muted small mb-3">
+            Esta ação irá remover todas as suas receitas, despesas e categorias permanentemente. 
+            <strong>Esta ação não pode ser desfeita!</strong>
+          </p>
+          
+          <button type="button" class="btn btn-outline-danger w-100 mb-3" data-bs-toggle="modal" data-bs-target="#resetModal">
+            <i class="bi bi-trash me-2"></i>Resetar Todos os Dados
+          </button>
+
+          <hr class="border-danger my-3">
+
+          <h6 class="text-light mb-3">Excluir Conta Permanentemente</h6>
+          <p class="text-muted small mb-3">
+            Esta ação irá excluir permanentemente sua conta e <strong>TODOS</strong> os seus dados. 
+            <strong>Esta ação é IRREVERSÍVEL!</strong>
+          </p>
+          
+          <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+            <i class="bi bi-person-x me-2"></i>Excluir Conta
+          </button>
+        </div>
+      </div>
+    </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Reset Confirmation Modal -->
+<div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header border-danger">
+        <h5 class="modal-title text-light" id="resetModalLabel">
+          <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+          Confirmar Reset de Dados
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          <strong>Atenção!</strong> Esta ação é irreversível e irá:
+        </div>
+        <ul class="text-light">
+          <li>Excluir todas as suas receitas (<%= current_user.incomes.count %> registros)</li>
+          <li>Excluir todas as suas despesas (<%= current_user.expenses.count %> registros)</li>
+          <li>Excluir todas as suas categorias (<%= current_user.categories.count %> registros)</li>
+        </ul>
+        <p class="text-muted">
+          Para confirmar, digite <strong class="text-danger">RESETAR</strong> no campo abaixo:
+        </p>
+        <input type="text" id="confirmText" class="form-control bg-secondary border-secondary text-light" 
+               placeholder="Digite RESETAR para confirmar">
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <%= form_with url: settings_reset_finances_path, method: :delete, local: true, 
+                      class: "d-inline", id: "confirmResetForm", style: "display: none;" do |form| %>
+          <%= form.button type: "submit", class: "btn btn-danger" do %>
+            <i class="bi bi-trash me-1"></i> Confirmar Reset
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header border-danger">
+        <h5 class="modal-title text-light" id="deleteAccountModalLabel">
+          <i class="bi bi-person-x text-danger me-2"></i>
+          Confirmar Exclusão de Conta
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          <strong>🚨 ATENÇÃO - EXCLUSÃO PERMANENTE!</strong> Esta ação é irreversível e irá:
+        </div>
+        <ul class="text-light">
+          <li>Excluir permanentemente sua conta</li>
+          <li>Remover todas as suas receitas (<%= current_user.incomes.count %> registros)</li>
+          <li>Remover todas as suas despesas (<%= current_user.expenses.count %> registros)</li>
+          <li>Remover todas as suas categorias (<%= current_user.categories.count %> registros)</li>
+          <li>Apagar todos os seus dados pessoais</li>
+        </ul>
+        <div class="alert alert-warning" role="alert">
+          <strong>Esta ação NÃO pode ser desfeita!</strong> Você perderá acesso à sua conta permanentemente.
+        </div>
+        <p class="text-muted">
+          Para confirmar, digite <strong class="text-danger">EXCLUIR CONTA</strong> no campo abaixo:
+        </p>
+        <input type="text" id="confirmDeleteText" class="form-control bg-secondary border-secondary text-light" 
+               placeholder="Digite EXCLUIR CONTA para confirmar">
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <%= form_with url: settings_destroy_account_path, method: :delete, local: true, 
+                      class: "d-inline", id: "confirmDeleteForm", style: "display: none;" do |form| %>
+          <%= form.button type: "submit", class: "btn btn-danger" do %>
+            <i class="bi bi-person-x me-1"></i> Confirmar Exclusão
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Bootstrap form validation
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+
+  // Reset confirmation logic
+  document.addEventListener('DOMContentLoaded', function() {
+    const confirmText = document.getElementById('confirmText');
+    const confirmForm = document.getElementById('confirmResetForm');
+    
+    confirmText.addEventListener('input', function() {
+      if (this.value === 'RESETAR') {
+        confirmForm.style.display = 'inline-block';
+      } else {
+        confirmForm.style.display = 'none';
+      }
+    });
+    
+    // Clear input when modal closes
+    document.getElementById('resetModal').addEventListener('hidden.bs.modal', function() {
+      confirmText.value = '';
+      confirmForm.style.display = 'none';
+    });
+
+    // Delete account confirmation logic
+    const confirmDeleteText = document.getElementById('confirmDeleteText');
+    const confirmDeleteForm = document.getElementById('confirmDeleteForm');
+    
+    confirmDeleteText.addEventListener('input', function() {
+      if (this.value === 'EXCLUIR CONTA') {
+        confirmDeleteForm.style.display = 'inline-block';
+      } else {
+        confirmDeleteForm.style.display = 'none';
+      }
+    });
+    
+    // Clear input when delete modal closes
+    document.getElementById('deleteAccountModal').addEventListener('hidden.bs.modal', function() {
+      confirmDeleteText.value = '';
+      confirmDeleteForm.style.display = 'none';
+    });
+    
+    // Password requirement logic
+    const passwordField = document.getElementById('user_password');
+    const passwordConfirmationField = document.getElementById('user_password_confirmation');
+    const currentPasswordField = document.getElementById('user_current_password');
+    
+    function updateCurrentPasswordRequirement() {
+      const hasNewPassword = passwordField.value.trim().length > 0 || passwordConfirmationField.value.trim().length > 0;
+      
+      if (hasNewPassword) {
+        currentPasswordField.setAttribute('required', 'required');
+        currentPasswordField.parentElement.querySelector('.form-text').innerHTML = '<i class="bi bi-shield-check me-1"></i>Obrigatório para alterar a senha';
+      } else {
+        currentPasswordField.removeAttribute('required');
+        currentPasswordField.parentElement.querySelector('.form-text').innerHTML = '<i class="bi bi-shield-check me-1"></i>Necessário apenas se você estiver alterando a senha';
+      }
+    }
+    
+    passwordField.addEventListener('input', updateCurrentPasswordRequirement);
+    passwordConfirmationField.addEventListener('input', updateCurrentPasswordRequirement);
+  });
+</script>

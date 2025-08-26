@@ -1,0 +1,22 @@
+<% content_for :title, "Nova Receita - FinTrack" %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="text-light mb-1">
+        <i class="bi bi-plus-circle me-2 text-success"></i>
+        Nova Receita
+      </h1>
+      <p class="text-muted mb-0">Adicione uma nova fonte de renda</p>
+    </div>
+    <%= link_to incomes_path, class: "btn btn-outline-light" do %>
+      <i class="bi bi-arrow-left me-1"></i> Voltar
+    <% end %>
+  </div>
+
+  <!-- Form -->
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <%= render "form", income: @income %>
+    </div>
+  </div>

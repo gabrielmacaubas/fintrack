@@ -1,0 +1,161 @@
+<% content_for :title, "Categorias - FinTrack" %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="text-light mb-1">
+      <i class="bi bi-tags me-2 text-primary"></i>
+      Categorias
+    </h1>
+    <p class="text-muted mb-0">Organize suas receitas e despesas por categoria</p>
+  </div>
+  <%= link_to new_category_path, class: "btn btn-primary" do %>
+    <i class="bi bi-plus-circle me-1"></i> Nova Categoria
+  <% end %>
+</div>
+
+<!-- Search and Filters -->
+<div class="card bg-secondary border-0 mb-4">
+  <div class="card-header bg-transparent border-0">
+    <h6 class="text-light mb-0">
+      <i class="bi bi-funnel me-2"></i>Filtros e Busca
+    </h6>
+  </div>
+  <div class="card-body">
+    <%= form_with url: categories_path, method: :get, local: true, class: "row g-3" do |form| %>
+      <div class="col-md-4">
+        <%= form.label :query, "Buscar por nome", class: "form-label text-light" %>
+        <%= form.text_field :query, value: params[:query], 
+                            class: "form-control bg-dark border-secondary text-light",
+                            placeholder: "Digite o nome da categoria..." %>
+      </div>
+      
+      <div class="col-md-4">
+        <%= form.label :description, "Buscar por descrição", class: "form-label text-light" %>
+        <%= form.text_field :description, value: params[:description], 
+                            class: "form-control bg-dark border-secondary text-light",
+                            placeholder: "Digite a descrição..." %>
+      </div>
+      
+      <div class="col-md-4">
+        <%= form.label :sort_by, "Ordenar por", class: "form-label text-light" %>
+        <%= form.select :sort_by, [
+              ['Nome', 'name'],
+              ['Data de criação', 'created_at'],
+              ['Mais utilizadas', 'usage_count']
+            ], 
+            { selected: params[:sort_by] || 'name' },
+            { class: "form-select bg-dark border-secondary text-light" } %>
+      </div>
+      
+      <div class="col-12">
+        <div class="d-flex gap-2">
+          <%= form.submit "Filtrar", class: "btn btn-primary" %>
+          <%= link_to "Limpar", categories_path, class: "btn btn-outline-secondary" %>
+          <div class="ms-auto text-light">
+            <small>
+              <strong><%= @total_categories %></strong> categorias total |
+              <strong><%= @income_categories %></strong> para receitas |
+              <strong><%= @expense_categories %></strong> para despesas
+            </small>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+  <!-- Categories List -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card bg-secondary border-0">
+        <div class="card-body">
+          <% if @categories.any? %>
+            <div id="categories" class="row g-3">
+              <% @categories.each do |category| %>
+                <div class="col-md-6 col-lg-4">
+                  <div class="card bg-dark border-primary h-100">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="bg-primary bg-opacity-25 rounded-circle p-2">
+                          <i class="bi bi-tag text-primary fs-5"></i>
+                        </div>
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><%= link_to "Ver detalhes", category, class: "dropdown-item" %></li>
+                            <li><%= link_to "Editar", edit_category_path(category), class: "dropdown-item" %></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                              <%= link_to "Excluir", category, data: { turbo_method: :delete }, 
+                                          class: "dropdown-item text-danger",
+                                          confirm: "Tem certeza que deseja excluir esta categoria?" %>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <h5 class="card-title text-light mb-2"><%= category.name %></h5>
+                      
+                      <% if category.respond_to?(:total_usage) && category.total_usage > 0 %>
+                        <div class="mb-2">
+                          <small class="text-primary">
+                            <i class="bi bi-graph-up me-1"></i>
+                            <%= category.total_usage %> uso<%= 's' if category.total_usage != 1 %>
+                          </small>
+                        </div>
+                      <% end %>
+                      
+                      <% if category.description.present? %>
+                        <p class="text-muted small mb-3"><%= category.description %></p>
+                      <% end %>
+                      
+                      <div class="row text-center mb-3">
+                        <div class="col-6">
+                          <div class="border-end border-secondary">
+                            <small class="text-success d-block">Receitas</small>
+                            <strong class="text-success">
+                              <%= category.incomes_count || 0 %>
+                            </strong>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <small class="text-danger d-block">Despesas</small>
+                          <strong class="text-danger">
+                            <%= category.expenses_count || 0 %>
+                          </strong>
+                        </div>
+                      </div>
+                      
+                      <div class="d-grid">
+                        <%= link_to category, class: "btn btn-sm btn-outline-primary" do %>
+                          <i class="bi bi-eye me-1"></i> Ver detalhes
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-4 d-flex justify-content-center">
+              <%= paginate @categories %>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <i class="bi bi-tags text-muted display-4"></i>
+              <h4 class="text-muted mt-3">Nenhuma categoria encontrada</h4>
+              <p class="text-muted">Crie categorias para organizar melhor suas transações</p>
+              <%= link_to new_category_path, class: "btn btn-primary" do %>
+                <i class="bi bi-plus-circle me-1"></i> Criar primeira categoria
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+

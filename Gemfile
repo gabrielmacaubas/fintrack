@@ -76,3 +76,21 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+
+  gem "rspec-rails"
+
+
+
+
+gem "cancancan"
+
+
+
+
+group :test do
+  gem "shoulda-matchers", "~> 5.0"
+  gem "factory_bot_rails", "~> 6.0"
+end
+
+

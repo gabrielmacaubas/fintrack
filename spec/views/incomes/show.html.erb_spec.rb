@@ -1,0 +1,22 @@
+require 'rails_helper'
+
+RSpec.describe "incomes/show", type: :view do
+  let(:user) { create(:user) }
+  let(:category) { create(:category) }
+  let(:income) { create(:income, user: user, category: category) }
+
+  before(:each) do
+    assign(:income, income)
+  end
+
+  it "renders attributes in <p>" do
+    render
+    expect(rendered).to match(/#{income.user.id}/)
+    expect(rendered).to match(/#{income.category.id}/)
+    expect(rendered).to match(/9.99/)
+    expect(rendered).to match(/MyText/)
+    expect(rendered).to match(/MyString/)
+  end
+end
+
+

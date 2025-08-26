@@ -1,0 +1,169 @@
+<div class="card bg-secondary border-0">
+  <div class="card-body">
+    <%= form_with(model: income, local: true, class: "needs-validation", novalidate: true) do |form| %>
+      <% if income.errors.any? %>
+        <div class="alert alert-danger" role="alert">
+          <h6><i class="bi bi-exclamation-triangle me-2"></i>Corrija os seguintes erros:</h6>
+          <ul class="mb-0">
+            <% income.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="row g-3">
+        <div class="col-12">
+          <%= form.label :description, "Descrição", class: "form-label text-light" %>
+          <%= form.text_area :description, class: "form-control bg-dark border-secondary text-light", 
+                             placeholder: "Descreva a origem desta receita...", rows: 3, required: true %>
+          <div class="invalid-feedback">
+            Por favor, informe uma descrição para a receita.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :amount, "Valor", class: "form-label text-light" %>
+          <div class="input-group">
+            <span class="input-group-text bg-secondary border-secondary text-light">R$</span>
+            <%= form.number_field :amount, class: "form-control bg-dark border-secondary text-light", 
+                                  step: 0.01, min: 0.01, placeholder: "0,00", required: true %>
+            <div class="invalid-feedback">
+              Por favor, informe o valor da receita.
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :date, "Data", class: "form-label text-light" %>
+          <%= form.date_field :date, class: "form-control bg-dark border-secondary text-light", 
+                              value: Date.current, required: true %>
+          <div class="invalid-feedback">
+            Por favor, selecione a data da receita.
+          </div>
+        </div>
+
+        <div class="col-12">
+          <%= form.label :category_id, "Categoria", class: "form-label text-light" %>
+          <%= form.collection_select :category_id, Category.all, :id, :name, 
+                                     { prompt: "Selecione uma categoria..." }, 
+                                     { class: "form-select bg-dark border-secondary text-light", required: true } %>
+          <div class="invalid-feedback">
+            Por favor, selecione uma categoria.
+          </div>
+          <div class="form-text text-muted">
+            Não encontrou a categoria? <%= link_to "Criar nova categoria", new_category_path, 
+                                                   class: "text-primary", target: "_blank" %>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <%= form.label :receipt, "Comprovante (opcional)", class: "form-label text-light" %>
+          <%= form.file_field :receipt, class: "form-control bg-dark border-secondary text-light", 
+                              accept: "image/*,.pdf,.doc,.docx,.xls,.xlsx", 
+                              data: { max_size: 5242880 },
+                              id: "receipt_input" %>
+          <div class="form-text text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Aceita imagens, PDFs e documentos de até 5MB
+          </div>
+          <% if income.persisted? && income.has_receipt? %>
+            <div class="mt-2 p-2 bg-dark rounded">
+              <small class="text-success">
+                <i class="bi bi-check-circle me-1"></i>
+                Comprovante atual: <%= income.receipt.filename %>
+              </small>
+              <br>
+              <small class="text-muted">Selecione um novo arquivo para substituir</small>
+            </div>
+          <% end %>
+          
+          <!-- Preview container -->
+          <div id="receipt_preview" class="mt-3" style="display: none;">
+            <div class="bg-dark rounded p-3">
+              <label class="form-label text-muted small mb-2">Preview do comprovante:</label>
+              <img id="preview_image" class="img-fluid rounded" style="max-height: 200px;">
+              <div id="preview_file" class="d-flex align-items-center p-2 bg-secondary rounded" style="display: none;">
+                <i class="bi bi-file-earmark text-primary fs-4 me-2"></i>
+                <span id="preview_filename" class="text-light"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <%= form.hidden_field :user_id, value: current_user.id %>
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end mt-4">
+        <%= link_to incomes_path, class: "btn btn-secondary" do %>
+          <i class="bi bi-arrow-left me-1"></i> Cancelar
+        <% end %>
+        <%= form.submit income.persisted? ? "Atualizar Receita" : "Salvar Receita", class: "btn btn-success" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Bootstrap form validation
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+
+  // File preview functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const receiptInput = document.getElementById('receipt_input');
+    const previewContainer = document.getElementById('receipt_preview');
+    const previewImage = document.getElementById('preview_image');
+    const previewFile = document.getElementById('preview_file');
+    const previewFilename = document.getElementById('preview_filename');
+
+    if (receiptInput) {
+      receiptInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        
+        if (file) {
+          // Check file size (5MB = 5 * 1024 * 1024 bytes)
+          if (file.size > 5242880) {
+            alert('O arquivo deve ter menos de 5MB');
+            receiptInput.value = '';
+            previewContainer.style.display = 'none';
+            return;
+          }
+
+          previewContainer.style.display = 'block';
+          
+          if (file.type.startsWith('image/')) {
+            // Show image preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              previewImage.src = e.target.result;
+              previewImage.style.display = 'block';
+              previewFile.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+          } else {
+            // Show file info
+            previewFilename.textContent = file.name;
+            previewImage.style.display = 'none';
+            previewFile.style.display = 'flex';
+          }
+        } else {
+          previewContainer.style.display = 'none';
+        }
+      });
+    }
+  });
+</script>

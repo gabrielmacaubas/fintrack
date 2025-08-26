@@ -1,0 +1,173 @@
+<% content_for :title, "Despesas - FinTrack" %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="text-light mb-1">
+      <i class="bi bi-graph-down me-2 text-danger"></i>
+      Despesas
+    </h1>
+    <p class="text-muted mb-0">Controle seus gastos e despesas</p>
+  </div>
+  <%= link_to new_expense_path, class: "btn btn-danger" do %>
+    <i class="bi bi-plus-circle me-1"></i> Nova Despesa
+  <% end %>
+</div>
+
+<!-- Search and Filters -->
+<div class="card bg-secondary border-0 mb-4">
+  <div class="card-header bg-transparent border-0">
+    <h6 class="text-light mb-0">
+      <i class="bi bi-funnel me-2"></i>Filtros e Busca
+    </h6>
+  </div>
+  <div class="card-body">
+    <%= form_with url: expenses_path, method: :get, local: true, class: "row g-3" do |form| %>
+      <div class="col-md-4">
+        <%= form.label :query, "Buscar por descrição", class: "form-label text-light" %>
+        <%= form.text_field :query, value: params[:query], 
+                            class: "form-control bg-dark border-secondary text-light",
+                            placeholder: "Digite a descrição..." %>
+      </div>
+      
+      <div class="col-md-4">
+        <%= form.label :category_id, "Categoria", class: "form-label text-light" %>
+        <%= form.select :category_id, 
+                        options_from_collection_for_select(@categories || [], :id, :name, params[:category_id]),
+                        { prompt: "Todas as categorias" },
+                        { class: "form-select bg-dark border-secondary text-light" } %>
+      </div>
+      
+      <div class="col-md-4">
+        <%= form.label :sort_by, "Ordenar por", class: "form-label text-light" %>
+        <%= form.select :sort_by, [
+              ['Data (mais recente)', 'date_desc'],
+              ['Data (mais antiga)', 'date_asc'],
+              ['Valor (maior)', 'amount_desc'],
+              ['Valor (menor)', 'amount_asc'],
+              ['Descrição', 'description']
+            ], 
+            { selected: params[:sort_by] || 'date_desc' },
+            { class: "form-select bg-dark border-secondary text-light" } %>
+      </div>
+      
+      <div class="col-md-3">
+        <%= form.label :min_amount, "Valor mínimo", class: "form-label text-light" %>
+        <%= form.number_field :min_amount, value: params[:min_amount], 
+                              class: "form-control bg-dark border-secondary text-light",
+                              placeholder: "R$ 0,00", step: 0.01 %>
+      </div>
+      
+      <div class="col-md-3">
+        <%= form.label :max_amount, "Valor máximo", class: "form-label text-light" %>
+        <%= form.number_field :max_amount, value: params[:max_amount], 
+                              class: "form-control bg-dark border-secondary text-light",
+                              placeholder: "R$ 0,00", step: 0.01 %>
+      </div>
+      
+      <div class="col-md-3">
+        <%= form.label :date_from, "Data inicial", class: "form-label text-light" %>
+        <%= form.date_field :date_from, value: params[:date_from], 
+                            class: "form-control bg-dark border-secondary text-light" %>
+      </div>
+      
+      <div class="col-md-3">
+        <%= form.label :date_to, "Data final", class: "form-label text-light" %>
+        <%= form.date_field :date_to, value: params[:date_to], 
+                            class: "form-control bg-dark border-secondary text-light" %>
+      </div>
+      
+      <div class="col-12">
+        <div class="d-flex gap-2">
+          <%= form.submit "Filtrar", class: "btn btn-primary" %>
+          <%= link_to "Limpar", expenses_path, class: "btn btn-outline-secondary" %>
+          <div class="ms-auto text-light">
+            <strong>Total filtrado: <%= number_to_currency(@total_filtered || 0) %></strong>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Expenses List -->
+<div class="row">
+    <div class="col-12">
+      <div class="card bg-secondary border-0">
+        <div class="card-body">
+          <% if @expenses.any? %>
+            <div id="expenses" class="row g-3">
+              <% @expenses.each do |expense| %>
+                <div class="col-md-6 col-lg-4">
+                  <div class="card bg-dark border-danger h-100">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="bg-danger bg-opacity-25 rounded-circle p-2">
+                          <i class="bi bi-arrow-down-circle text-danger fs-5"></i>
+                        </div>
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><%= link_to "Ver detalhes", expense, class: "dropdown-item" %></li>
+                            <li><%= link_to "Editar", edit_expense_path(expense), class: "dropdown-item" %></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                              <%= link_to "Excluir", expense, data: { turbo_method: :delete }, 
+                                          class: "dropdown-item text-danger",
+                                          confirm: "Tem certeza que deseja excluir esta despesa?" %>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <h6 class="card-title text-light mb-2"><%= expense.description %></h6>
+                      <h4 class="text-danger fw-bold mb-3"><%= number_to_currency(expense.amount) %></h4>
+                      
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                          <i class="bi bi-calendar3 me-1"></i>
+                          <%= expense.date.strftime("%d/%m/%Y") %>
+                        </small>
+                        <div class="d-flex align-items-center gap-2">
+                          <% if expense.has_receipt? %>
+                            <small class="text-success" title="Possui comprovante">
+                              <i class="bi bi-paperclip"></i>
+                            </small>
+                          <% end %>
+                          <span class="badge bg-danger"><%= expense.category.name %></span>
+                        </div>
+                      </div>
+                      
+                      <div class="d-grid">
+                        <%= link_to expense, class: "btn btn-sm btn-outline-danger" do %>
+                          <i class="bi bi-eye me-1"></i> Ver detalhes
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-4 d-flex justify-content-center">
+              <%= paginate @expenses %>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <i class="bi bi-graph-down text-muted display-4"></i>
+              <h4 class="text-muted mt-3">Nenhuma despesa encontrada</h4>
+              <p class="text-muted">Comece registrando seus primeiros gastos</p>
+              <%= link_to new_expense_path, class: "btn btn-danger" do %>
+                <i class="bi bi-plus-circle me-1"></i> Adicionar primeira despesa
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
