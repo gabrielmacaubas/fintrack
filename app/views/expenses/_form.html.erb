@@ -1,6 +1,11 @@
 <div class="card bg-secondary border-0">
   <div class="card-body">
-    <%= form_with(model: expense, local: true, class: "needs-validation", novalidate: true) do |form| %>
+    <%= form_with(model: expense, local: true, 
+                  class: "needs-validation",
+                  data: { 
+                    controller: "form-validation",
+                    form_validation_target: "form"
+                  }) do |form| %>
       <% if expense.errors.any? %>
         <div class="alert alert-danger" role="alert">
           <h6><i class="bi bi-exclamation-triangle me-2"></i>Corrija os seguintes erros:</h6>
@@ -15,8 +20,14 @@
       <div class="row g-3">
         <div class="col-12">
           <%= form.label :description, "Descrição", class: "form-label text-light" %>
-          <%= form.text_area :description, class: "form-control bg-dark border-secondary text-light", 
-                             placeholder: "Descreva esta despesa...", rows: 3, required: true %>
+          <%= form.text_area :description, 
+                             class: "form-control bg-dark border-secondary text-light", 
+                             placeholder: "Descreva esta despesa...", 
+                             rows: 3, 
+                             required: true,
+                             data: { 
+                               form_validation_target: "field"
+                             } %>
           <div class="invalid-feedback">
             Por favor, informe uma descrição para a despesa.
           </div>
@@ -26,8 +37,16 @@
           <%= form.label :amount, "Valor", class: "form-label text-light" %>
           <div class="input-group">
             <span class="input-group-text bg-secondary border-secondary text-light">R$</span>
-            <%= form.number_field :amount, class: "form-control bg-dark border-secondary text-light", 
-                                  step: 0.01, min: 0.01, placeholder: "0,00", required: true %>
+            <%= form.number_field :amount, 
+                                  class: "form-control bg-dark border-secondary text-light", 
+                                  step: 0.01, 
+                                  min: 0.01, 
+                                  placeholder: "0,00", 
+                                  required: true,
+                                  data: { 
+                                    form_validation_target: "field",
+                                    action: "blur->form-validation#validateCurrency"
+                                  } %>
             <div class="invalid-feedback">
               Por favor, informe o valor da despesa.
             </div>
@@ -36,8 +55,13 @@
 
         <div class="col-md-6">
           <%= form.label :date, "Data", class: "form-label text-light" %>
-          <%= form.date_field :date, class: "form-control bg-dark border-secondary text-light", 
-                              value: Date.current, required: true %>
+          <%= form.date_field :date, 
+                              class: "form-control bg-dark border-secondary text-light", 
+                              value: expense.date || Date.current, 
+                              required: true,
+                              data: { 
+                                form_validation_target: "field"
+                              } %>
           <div class="invalid-feedback">
             Por favor, selecione a data da despesa.
           </div>
@@ -47,7 +71,11 @@
           <%= form.label :category_id, "Categoria", class: "form-label text-light" %>
           <%= form.collection_select :category_id, Category.all, :id, :name, 
                                      { prompt: "Selecione uma categoria..." }, 
-                                     { class: "form-select bg-dark border-secondary text-light", required: true } %>
+                                     { class: "form-select bg-dark border-secondary text-light", 
+                                       required: true,
+                                       data: { 
+                                         form_validation_target: "field"
+                                       } } %>
           <div class="invalid-feedback">
             Por favor, selecione uma categoria.
           </div>
@@ -98,31 +126,18 @@
         <%= link_to expenses_path, class: "btn btn-secondary" do %>
           <i class="bi bi-arrow-left me-1"></i> Cancelar
         <% end %>
-        <%= form.submit expense.persisted? ? "Atualizar Despesa" : "Salvar Despesa", class: "btn btn-danger" %>
+        <%= form.submit expense.persisted? ? "Atualizar Despesa" : "Salvar Despesa", 
+                        class: "btn btn-danger",
+                        data: { 
+                          form_validation_target: "submit"
+                        } %>
       </div>
     <% end %>
   </div>
 </div>
 
 <script>
-  // Bootstrap form validation
-  (function() {
-    'use strict';
-    window.addEventListener('load', function() {
-      var forms = document.getElementsByClassName('needs-validation');
-      var validation = Array.prototype.filter.call(forms, function(form) {
-        form.addEventListener('submit', function(event) {
-          if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-          form.classList.add('was-validated');
-        }, false);
-      });
-    }, false);
-  })();
-
-  // File preview functionality
+  // File preview functionality (keeps existing functionality)
   document.addEventListener('DOMContentLoaded', function() {
     const receiptInput = document.getElementById('receipt_input');
     const previewContainer = document.getElementById('receipt_preview');

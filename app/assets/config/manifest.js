@@ -4,6 +4,8 @@
 //= link @hotwired--stimulus.js
 //= link stimulus-rails-nested-form.js
 //= link controllers/application.js
+//= link controllers/filter_controller.js
+//= link controllers/form_validation_controller.js
 //= link controllers/hello_controller.js
 //= link controllers/index.js
 //= link controllers/search_controller.js

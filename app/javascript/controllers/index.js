@@ -4,5 +4,14 @@
 
 import { application } from "./application"
 
+import FilterController from "./filter_controller"
+application.register("filter", FilterController)
+
+import FormValidationController from "./form_validation_controller"
+application.register("form-validation", FormValidationController)
+
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import SearchController from "./search_controller"
+application.register("search", SearchController)

@@ -22,19 +22,34 @@
     </h6>
   </div>
   <div class="card-body">
-    <%= form_with url: categories_path, method: :get, local: true, class: "row g-3" do |form| %>
+    <%= form_with url: categories_path, method: :get, local: true, 
+                  class: "row g-3",
+                  data: { 
+                    controller: "filter",
+                    filter_auto_submit_value: true,
+                    filter_debounce_delay_value: 400,
+                    filter_target: "form"
+                  } do |form| %>
       <div class="col-md-4">
         <%= form.label :query, "Buscar por nome", class: "form-label text-light" %>
         <%= form.text_field :query, value: params[:query], 
                             class: "form-control bg-dark border-secondary text-light",
-                            placeholder: "Digite o nome da categoria..." %>
+                            placeholder: "Digite o nome da categoria...",
+                            data: { 
+                              filter_target: "input",
+                              action: "input->filter#inputChanged"
+                            } %>
       </div>
       
       <div class="col-md-4">
         <%= form.label :description, "Buscar por descrição", class: "form-label text-light" %>
         <%= form.text_field :description, value: params[:description], 
                             class: "form-control bg-dark border-secondary text-light",
-                            placeholder: "Digite a descrição..." %>
+                            placeholder: "Digite a descrição...",
+                            data: { 
+                              filter_target: "input",
+                              action: "input->filter#inputChanged"
+                            } %>
       </div>
       
       <div class="col-md-4">
@@ -45,13 +60,26 @@
               ['Mais utilizadas', 'usage_count']
             ], 
             { selected: params[:sort_by] || 'name' },
-            { class: "form-select bg-dark border-secondary text-light" } %>
+            { class: "form-select bg-dark border-secondary text-light",
+              data: { 
+                filter_target: "select",
+                action: "change->filter#selectChanged"
+              } } %>
       </div>
       
       <div class="col-12">
         <div class="d-flex gap-2">
-          <%= form.submit "Filtrar", class: "btn btn-primary" %>
-          <%= link_to "Limpar", categories_path, class: "btn btn-outline-secondary" %>
+          <%= form.submit "Filtrar", 
+                          class: "btn btn-primary",
+                          data: { action: "click->filter#submit" } %>
+          <button type="button" 
+                  class="btn btn-outline-secondary" 
+                  data-filter-target="clearButton"
+                  data-action="click->filter#clear"
+                  style="display: none;">
+            Limpar
+          </button>
+          <%= link_to "Resetar", categories_path, class: "btn btn-outline-secondary" %>
           <div class="ms-auto text-light">
             <small>
               <strong><%= @total_categories %></strong> categorias total |
