@@ -105,21 +105,6 @@
                         <div class="bg-danger bg-opacity-25 rounded-circle p-2">
                           <i class="bi bi-arrow-down-circle text-danger fs-5"></i>
                         </div>
-                        <div class="dropdown">
-                          <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-three-dots-vertical"></i>
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><%= link_to "Ver detalhes", expense, class: "dropdown-item" %></li>
-                            <li><%= link_to "Editar", edit_expense_path(expense), class: "dropdown-item" %></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                              <%= link_to "Excluir", expense, data: { turbo_method: :delete }, 
-                                          class: "dropdown-item text-danger",
-                                          confirm: "Tem certeza que deseja excluir esta despesa?" %>
-                            </li>
-                          </ul>
-                        </div>
                       </div>
                       
                       <h6 class="card-title text-light mb-2"><%= expense.description %></h6>

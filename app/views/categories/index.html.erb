@@ -80,21 +80,6 @@
                         <div class="bg-primary bg-opacity-25 rounded-circle p-2">
                           <i class="bi bi-tag text-primary fs-5"></i>
                         </div>
-                        <div class="dropdown">
-                          <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-three-dots-vertical"></i>
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><%= link_to "Ver detalhes", category, class: "dropdown-item" %></li>
-                            <li><%= link_to "Editar", edit_category_path(category), class: "dropdown-item" %></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                              <%= link_to "Excluir", category, data: { turbo_method: :delete }, 
-                                          class: "dropdown-item text-danger",
-                                          confirm: "Tem certeza que deseja excluir esta categoria?" %>
-                            </li>
-                          </ul>
-                        </div>
                       </div>
                       
                       <h5 class="card-title text-light mb-2"><%= category.name %></h5>
